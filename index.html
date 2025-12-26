@@ -225,13 +225,22 @@
             inset: 0;
             display: none;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             text-align: center;
-            padding: 30px;
-            font-size: 26px;
-            line-height: 2;
+            padding: 20px;
+            overflow-y: auto; /* ✅ scroll on mobile */
+            font-size: 22px; /* desktop */
+            line-height: 1.8;
             z-index: 20;
+        }
+
+        /* Mobile optimization */
+        @media (max-width: 600px) {
+            #poem {
+                font-size: 16px;
+                line-height: 1.6;
+                padding-bottom: 80px; /* space for button */
+            }
         }
 
         .cursor {
@@ -247,6 +256,7 @@
             background: linear-gradient(135deg,#ffd700,#ff8c00);
             cursor: pointer;
             font-weight: 700;
+            display: none;
         }
 
         /* ============ MEMORIES SLIDER ============ */
@@ -311,13 +321,16 @@
             border-radius: 50%;
         }
     </style>
-</head>
 
+</head>
+<audio id="bgMusic" loop>
+    <source src="santa-music.mp3" type="audio/mpeg">
+</audio>
 <body>
 
     <div id="unlock">
         <h2>🎄 Enter Mobile Number 🎄</h2>
-        <input type="number" id="mobile">
+        <input type="number" id="mobile" placeholder="mobile no">
         <button id="openBtn">Open Surprise</button>
         <div id="error"></div>
     </div>
@@ -339,7 +352,7 @@
 
         <div id="poem">
             <div id="poemText"></div>
-            <button id="memoryBtn">💖 View Memories 💖</button>
+            <button id="memoryBtn"> View Memories </button>
         </div>
 
         <!-- MEMORY SLIDER -->
@@ -348,30 +361,41 @@
             <img src="memory1.jpg" class="memory-slide active">
             <img src="memory2.jpg" class="memory-slide">
             <img src="memory3.jpg" class="memory-slide">
+            <img src="memory4.jpg" class="memory-slide">
         </div>
 
     </div>
 
     <script>
-        const CORRECT = "8806953994";
+        const CORRECT = "7304141022";
         const unlock = document.getElementById("unlock");
         const celebration = document.getElementById("celebration");
         const poem = document.getElementById("poem");
         const poemText = document.getElementById("poemText");
 
-        document.getElementById("openBtn").onclick = () => {
+        const bgMusic = document.getElementById("bgMusic");
+
+        openBtn.onclick = () => {
             if (mobile.value === CORRECT) {
+
+                // 🎵 PLAY SANTA MUSIC
+                bgMusic.volume = 0.3;   // soft & pleasant
+                bgMusic.play().catch(() => { }); // safe for browser
+
                 unlock.style.display = "none";
                 celebration.style.display = "block";
                 startSnow();
                 startFireworks();
                 animateTitle();
-            } else error.innerText = "❌ Wrong number!";
+
+            } else {
+                error.innerText = "❌ Wrong number!";
+            }
         };
 
         /* TITLE */
         function animateTitle() {
-            const text = "MERRY CHRISTMAS KAVITHA";
+            const text = "🎄MERRY CHRISTMAS KAVITHA🎄";
             const colors = ["#ff3b3b", "#ffd700", "#3bff7a", "#3bbcff", "#ff7aff"];
             let delay = 0;
             christmasText.innerHTML = "";
@@ -409,27 +433,66 @@
         }
 
         /* POEM */
-        const poemContent = `🎄 Merry Christmas Kavitha 🎄
+        const poemContent = `जाने कैसे बीत गया इतना समय 🕒,
+बड़ा ही खूबसूरत रहा हमारा यह आपके साथ सफ़र 🛣️ |
 
-This little wish is just for you,
-Wrapped with joy and feelings true.
-May your days be warm and bright,
-Filled with love and Christmas light.
+ना जाने अब Ullas Sir किसको चिलायेंगे
+ए Kavithaaaaaa 🗣️
+वो WhatsApp का क्या हुआ??? 😄
 
-— Your Secret Santa ❤️`;
+आपके बिना GINI, VLSM, CENTURY रह जाएंगे अनाथ,
+बिना आपके Ullas Sir और Sanjay Sir का कट जाएगा चलान 📄 |
+
+आज बड़े ही खुशनसीब हैं हम,
+क्योंकि आपका Secret Santa 🎅 जो बन गए हैं हम |
+
+आपके जाने से पहले
+आपके चेहरे पे मुस्कुराहट 😀
+लाने का मौका जो मिला है|
+
+बीत गया ना जाने कैसा इतना वक्त,
+कि सीधा कलम 🖊️ से लिखते
+पहुच गए डिजिटल के जमाने मे हम  |
+
+आपके साथ बिताए हुए हर लम्हे
+और आपके हँसते चेहरे को
+सदा याद रखेंगे हम |
+
+आपको आपके Future के लिए
+बहुत सारी शुभकामनाएँ देते हैं हम 🌟 |
+
+आप जीवन मे ऐसे ही आगे बढ़ते रहे |
+ऐसे चाहते है हम ✨ |
+
+कभी ना मिले आपको जीवन मे Beck🔙 Beck 🔙 करो
+madam Beck🔙 करो का button हा ये वोही है Button
+जिसे सुनने से आपके हस्सी के फव्वारे नहीं रुकते
+😄|
+
+🎉 ALL THE BEST FOR YOUR FUTURE 🎉
+
+— Your Secret Santa 🎅`;
 
         function typePoem() {
             poem.style.display = "flex";
+            document.getElementById("memoryBtn").style.display = "none";
+
             const words = poemContent.split(" ");
             let i = 0;
+
             const t = setInterval(() => {
-                poemText.innerHTML = words.slice(0, i).join(" ") + " <span class='cursor'>|</span>";
+                poemText.innerHTML =
+                    words.slice(0, i).join(" ") + " <span class='cursor'>|</span>";
                 i++;
+
                 if (i > words.length) {
                     poemText.innerHTML = words.join(" ");
                     clearInterval(t);
+
+                    // 👇 SHOW BUTTON AFTER POEM ENDS
+                    document.getElementById("memoryBtn").style.display = "inline-block";
                 }
-            }, 250);
+            }, 200);
         }
 
         /* MEMORY SLIDER */
